@@ -10,52 +10,46 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var viewModel = GameViewModel()
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView {
+            DashboardView(viewModel: viewModel)
+                .tabItem {
+                    Label("Dashboard", systemImage: "house.fill")
                 }
-                .onDelete(perform: deleteItems)
+            
+            WorkView(viewModel: viewModel)
+                .tabItem {
+                    Label("Work", systemImage: "briefcase.fill")
+                }
+            
+            GameView(viewModel: viewModel)
+                .tabItem {
+                    Label("Game", systemImage: "suit.spade.fill")
+                }
+            
+            ShopView(viewModel: viewModel)
+                .tabItem {
+                    Label("Shop", systemImage: "cart.fill")
+                }
+            
+            NavigationView {
+                HistoryView()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            .tabItem {
+                Label("History", systemImage: "clock.fill")
             }
         }
+        .onAppear {
+            viewModel.setContext(modelContext)
+        }
+        .preferredColorScheme(.dark) // Force Dark Mode for the aesthetic
+        .tint(Color.casinoGold)
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: [Player.self, Transaction.self], inMemory: true)
 }
