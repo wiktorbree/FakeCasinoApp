@@ -152,6 +152,49 @@ class GameViewModel {
         }
     }
     
+    // MARK: - Slots
+    let slotsSymbols = ["🍒", "🍋", "💎", "7️⃣"]
+    var reels = ["🍒", "🍒", "🍒"]
+    
+    func playSlots() {
+        guard let player = player else { return }
+        guard player.balance >= betAmount else {
+            gameMessage = "Insufficient funds!"
+            return
+        }
+        
+        // Spin logic
+        reels = reels.map { _ in slotsSymbols.randomElement()! }
+        
+        // Determine win
+        let uniqueSymbols = Set(reels)
+        
+        if uniqueSymbols.count == 1 {
+            // Jackpot (3 match)
+            let winnings = betAmount * 10
+            player.balance += winnings
+            player.wins += 1
+            addXP(100)
+            addTransaction(amount: winnings, type: .win, desc: "Slots Jackpot! \(reels.joined())")
+            gameMessage = "JACKPOT! \(reels.joined())"
+        } else if uniqueSymbols.count == 2 {
+            // Small Win (2 match)
+            let winnings = betAmount * 2
+            player.balance += winnings
+            player.wins += 1
+            addXP(20)
+            addTransaction(amount: winnings, type: .win, desc: "Slots Win! \(reels.joined())")
+            gameMessage = "Nice Win! \(reels.joined())"
+        } else {
+            // Loss
+            player.balance -= betAmount
+            player.losses += 1
+            addXP(5)
+            addTransaction(amount: betAmount, type: .loss, desc: "Slots Loss \(reels.joined())")
+            gameMessage = "Try Again! \(reels.joined())"
+        }
+    }
+    
     // MARK: - Shop
     func buyItem(_ item: ShopItem) {
         guard let player = player else { return }

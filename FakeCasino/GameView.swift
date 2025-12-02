@@ -11,70 +11,60 @@ struct GameView: View {
     @Bindable var viewModel: GameViewModel
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("High / Low")
-                .font(.largeTitle)
+        NavigationStack {
+            VStack(spacing: 30) {
+                Text("Game Hub")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                
+                Spacer()
+                
+                NavigationLink(destination: HighLowView(viewModel: viewModel)) {
+                    GameCard(title: "High / Low", icon: "arrow.up.arrow.down", color: .casinoPurple)
+                }
+                
+                NavigationLink(destination: SlotsView(viewModel: viewModel)) {
+                    GameCard(title: "Slots", icon: "square.grid.3x3.fill", color: .casinoGold)
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .background(LinearGradient.mainBackground)
+        }
+    }
+}
+
+struct GameCard: View {
+    let title: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.system(size: 40))
+                .foregroundStyle(.white)
+                .frame(width: 60)
+            
+            Text(title)
+                .font(.title2)
                 .fontWeight(.bold)
                 .foregroundStyle(.white)
             
             Spacer()
             
-            VStack(spacing: 20) {
-                Text(viewModel.gameMessage)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .glassCard()
-                
-                HStack {
-                    Text("Bet Amount:")
-                        .foregroundStyle(.secondary)
-                    TextField("Amount", value: $viewModel.betAmount, format: .currency(code: "USD"))
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 100)
-                }
-                .padding()
-                .glassCard()
-                
-                HStack(spacing: 20) {
-                    Button(action: { viewModel.playHighLow(guessHigh: false) }) {
-                        VStack {
-                            Image(systemName: "arrow.down.circle.fill")
-                                .font(.largeTitle)
-                            Text("LOW")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.casinoRed)
-                        .cornerRadius(15)
-                    }
-                    
-                    Button(action: { viewModel.playHighLow(guessHigh: true) }) {
-                        VStack {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .font(.largeTitle)
-                            Text("HIGH")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.casinoGreen)
-                        .cornerRadius(15)
-                    }
-                }
-                .foregroundStyle(.white)
-            }
-            .padding()
-            
-            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.secondary)
         }
-        .padding()
-        .background(LinearGradient.mainBackground)
-        .onTapGesture {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        }
+        .padding(30)
+        .background(color.opacity(0.8))
+        .cornerRadius(20)
+        .shadow(color: color.opacity(0.4), radius: 10, x: 0, y: 5)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
     }
 }
